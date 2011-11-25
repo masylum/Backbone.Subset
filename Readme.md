@@ -15,7 +15,7 @@ The API is almost the same as `Backbone.Collection`.
 
   * You must implement a `parent` function that returns the collection the subset belongs.
   * You must implement a `sieve` function that will be used to filter the parent collection.
-  * You can pass the option `{noparent: true}` on doing an `add` or a `remove` if you don't want this action to bubble to the parent collection.
+  * You can pass the option `{noproxy: true}` if you don't want the event to bubble from the parent to the subset.
 
 ``` javascript
 Models.Task = Backbone.Model.extend({
