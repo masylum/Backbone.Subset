@@ -190,6 +190,6 @@ describe('Aggregated collections', function () {
     assert.deepEqual(tasks.pluck('id'), [0, 4, 5]);
     assert.deepEqual(archived_tasks.pluck('id'), [5]);
     assert.deepEqual(_.pluck(tasks.models, 'cid'), ['c6', 'c8', 'c9']);
-    assert.deepEqual(_.pluck(archived_tasks.models, 'cid'), ['c11']);
+    assert.deepEqual(_.pluck(archived_tasks.models, 'cid'), ['c9']);
   });
 });

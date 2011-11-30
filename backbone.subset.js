@@ -74,8 +74,10 @@
     this.each(this._unbindModelEvents);
     this._reset();
 
-    _.each(models, function (model) {
-      this._addToSubset(model, {silent: true});
+    this.parent().each(function (model) {
+      if (this.sieve(model)) {
+        this._addToSubset(model, {silent: true});
+      }
     }, this);
 
     if (!options.silent) {
