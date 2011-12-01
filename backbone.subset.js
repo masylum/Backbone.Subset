@@ -24,7 +24,7 @@
     options = options || {};
 
     this.model = this.parent().model;
-    this.comparator = options.comparator || this.parent().comparator;
+    this.comparator = this.comparator || options.comparator || this.parent().comparator;
 
     _.bindAll(this, '_onModelEvent', '_unbindModelEvents', '_proxyEvents');
 

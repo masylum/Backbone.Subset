@@ -26,13 +26,22 @@ Models.Task = Backbone.Model.extend({
   }
 });
 
-Collections.Tasks = Backbone.Collection.extend({model: Models.Task});
+Collections.Tasks = Backbone.Collection.extend({
+  model: Models.Task
+, comparator: function (m) {
+    return m.get('order');
+  }
+});
+
 Collections.ArchivedTasks = Backbone.Subset.extend({
   parent: function () {
     return tasks;
   }
 , sieve: function (task) {
     return task.isArchived();
+  }
+, comparator: function (m) {
+    return -m.get('order');
   }
 });
 
@@ -47,7 +56,7 @@ describe('Subset', function () {
     archived_tasks.bind('add', inc('archived_tasks'));
 
     for (var i = 0; i < 4; i++) {
-      archived_tasks.add({id: i, archived: i % 2});
+      archived_tasks.add({id: i, archived: i % 2, order: i});
     }
 
     assert.equal(happened.tasks, 4);
@@ -59,12 +68,12 @@ describe('Subset', function () {
 
   it('contains corrects cids', function () {
     assert.deepEqual(_.pluck(tasks.models, 'cid'), ['c0', 'c1', 'c2', 'c3']);
-    assert.deepEqual(_.pluck(archived_tasks.models, 'cid'), ['c1', 'c3']);
+    assert.deepEqual(_.pluck(archived_tasks.models, 'cid'), ['c3', 'c1']);
   });
 
   it('contains corrects ids', function () {
     assert.deepEqual(tasks.pluck('id'), [0, 1, 2, 3]);
-    assert.deepEqual(archived_tasks.pluck('id'), [1, 3]);
+    assert.deepEqual(archived_tasks.pluck('id'), [3,1]);
   });
 
   it('has a `get` function that behaves like the `Collection` one + bubbling', function () {
@@ -96,14 +105,14 @@ describe('Aggregated collections', function () {
     tasks.bind('add', inc('tasks'));
     archived_tasks.bind('add', inc('archived_tasks'));
 
-    tasks.add([{id: 0, archived: 0}, {id: 1, archived: 1}]);
+    tasks.add([{id: 0, archived: 0, order: 0}, {id: 1, archived: 1, order: 1}]);
 
     assert.equal(happened.tasks, 2);
     assert.equal(happened.archived_tasks, 1);
 
-    assert.deepEqual(tasks.pluck('id'), [2, 3, 0, 1]);
+    assert.deepEqual(tasks.pluck('id'), [0, 1, 2, 3]);
     assert.deepEqual(archived_tasks.pluck('id'), [3, 1]);
-    assert.deepEqual(_.pluck(tasks.models, 'cid'), ["c2","c3","c4","c5"]);
+    assert.deepEqual(_.pluck(tasks.models, 'cid'), ["c4", "c5", "c2", "c3"]);
     assert.deepEqual(_.pluck(archived_tasks.models, 'cid'), ['c3', 'c5']);
   });
 
@@ -153,15 +162,15 @@ describe('Aggregated collections', function () {
     tasks.bind('reset', inc('tasks'));
     archived_tasks.bind('reset', inc('archived_tasks'));
 
-    tasks.reset([{id: 0, archived: 0}, {id: 1, archived: 1}]);
+    tasks.reset([{id: 0, archived: 0, order: 0}, {id: 1, archived: 1, order: 1}, {id: 2, archived: 1, order: 2}]);
 
     assert.equal(happened.tasks, 1);
     assert.equal(happened.archived_tasks, 1);
 
-    assert.deepEqual(tasks.pluck('id'), [0, 1]);
-    assert.deepEqual(archived_tasks.pluck('id'), [1]);
-    assert.deepEqual(_.pluck(tasks.models, 'cid'), ['c6', 'c7']);
-    assert.deepEqual(_.pluck(archived_tasks.models, 'cid'), ['c7']);
+    assert.deepEqual(tasks.pluck('id'), [0, 1, 2]);
+    assert.deepEqual(archived_tasks.pluck('id'), [2,1]);
+    assert.deepEqual(_.pluck(tasks.models, 'cid'), ['c6', 'c7', 'c8']);
+    assert.deepEqual(_.pluck(archived_tasks.models, 'cid'), ['c8','c7']);
 
     happened = {archived_tasks: 0, tasks: 0, tasks_add: 0, archived_tasks_add: 0, tasks_remove: 0, archived_tasks_remove: 0};
     tasks.unbind('add');
@@ -178,18 +187,18 @@ describe('Aggregated collections', function () {
     tasks.bind('remove', inc('tasks_remove'));
     archived_tasks.bind('remove', inc('archived_tasks_remove'));
 
-    archived_tasks.reset([{id: 4, archived: 0}, {id: 5, archived: 1}]);
+    archived_tasks.reset([{id: 4, archived: 0, order: 4}, {id: 5, archived: 1, order: 5}, {id: 6, archived: 1, order: 6}]);
 
     assert.equal(happened.tasks, 0);
     assert.equal(happened.archived_tasks, 1);
-    assert.equal(happened.tasks_add, 2);
+    assert.equal(happened.tasks_add, 3);
     assert.equal(happened.archived_tasks_add, 0);
-    assert.equal(happened.tasks_remove, 1);
+    assert.equal(happened.tasks_remove, 2);
     assert.equal(happened.archived_tasks_remove, 0);
 
-    assert.deepEqual(tasks.pluck('id'), [0, 4, 5]);
-    assert.deepEqual(archived_tasks.pluck('id'), [5]);
-    assert.deepEqual(_.pluck(tasks.models, 'cid'), ['c6', 'c8', 'c9']);
-    assert.deepEqual(_.pluck(archived_tasks.models, 'cid'), ['c9']);
+    assert.deepEqual(tasks.pluck('id'), [0, 4, 5, 6]);
+    assert.deepEqual(archived_tasks.pluck('id'), [6, 5]);
+    assert.deepEqual(_.pluck(tasks.models, 'cid'), ['c6', 'c9', 'c10', 'c11']);
+    assert.deepEqual(_.pluck(archived_tasks.models, 'cid'), ['c11', 'c10']);
   });
 });
