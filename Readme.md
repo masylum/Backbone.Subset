@@ -42,9 +42,41 @@ archivedTasks = new Collections.ArchivedTasks();
 
 tasks.reset([{archived: true}, {archived: false}]);
 
-assert.equal(task.length, 2);
+assert.equal(tasks.length, 2);
 assert.equal(archivedTasks.length, 1);
 ```
+
+## Live Updating of subsets
+
+Subsets can be optionally updated live. That is, if a models attributes
+change such that affect it's membership of a subset, that update will
+happen automatically.
+
+By default live updating is disabled. Continuing the above example:
+
+```
+tasks.reset([{archived: true}, {archived: false}]);
+archivedTasks.liveupdate_keys = 'all'
+
+assert.equal(tasks.length, 2);
+assert.equal(archivedTasks.length, 1);
+
+tasks.first().set({archived: false});
+assert.equal(tasks.length, 2);
+assert.equal(archivedTasks.length, 0);
+```
+
+### Controlling live updating
+
+Live updating is controlled by a subset's `liveupdate\_keys` attribute.
+
+* To prevent live updating of a subset, set it's `liveupdate\_keys` attribute
+to be 'none' (this is the default).
+* To enable live updating when any model key changes, set
+  `liveupdate\_keys = 'all'`.
+* To limit which model keys trigger a live update, set `liveupdate\_keys`
+to be an array of attributes: `liveupdate\_keys = ['archived']`.
+
 
 ## Tests
 
