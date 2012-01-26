@@ -25,6 +25,7 @@
 
     this.model = this.parent().model;
     this.comparator = this.comparator || options.comparator || this.parent().comparator;
+    this.liveupdate_keys = this.liveupdate_keys || options.liveupdate_keys || 'none';
 
     _.bindAll(this, '_onModelEvent', '_unbindModelEvents', '_proxyEvents');
 
@@ -161,17 +162,40 @@
    * @return {Object} model
    */
   Subset._proxyEvents = function (ev, model, collection, options) {
-    if (ev === 'add' && collection !== this && this.sieve(model) && !options.noproxy) {
-      this._addToSubset(model, options);
-    }
+    if ( collection !== this) {
+      if (ev === 'change' && this.liveupdate_keys === 'all') {
+        this._updateModelMembership(model);
+      } else if (ev.slice(0,7) == 'change:' && _.isArray(this.liveupdate_keys) && _.include(this.liveupdate_keys, ev.slice(7))) {
+        this._updateModelMembership(model);
+      }
 
-    if (ev === 'remove' && collection !== this && this.sieve(model) && !options.noproxy) {
-      this._removeFromSubset(model, options);
-    }
+      if (ev === 'add' && this.sieve(model) && !options.noproxy) {
+        this._addToSubset(model, options);
+      }
+
+      if (ev === 'remove' && this.sieve(model) && !options.noproxy) {
+        this._removeFromSubset(model, options);
+      }
+    } 
 
     // model == collection
     if (ev === 'reset' && model !== this && model.any(this.sieve)) {
       this._resetSubset(model.models, collection);
+    }
+  };
+
+  /**
+   * Determines whether a model should be in the subset, and adds or removes it
+   * @param {Object} model
+   */
+  Subset._updateModelMembership = function(model) {
+    var hasId = model.id != null;
+    var alreadyInSubset = this._byCid[model.cid] || (hasId && this._byId[model.id]);
+
+    if (this.sieve(model)) {
+      !alreadyInSubset && this._addToSubset(model);
+    } else {
+      alreadyInSubset && this._removeFromSubset(model);
     }
   };
 
