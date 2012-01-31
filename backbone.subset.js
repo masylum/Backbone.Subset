@@ -50,12 +50,12 @@
 
     // delete parent reseted models
     this.each(function (model) {
-      this.parent()._remove(model, _.extend(options, {noproxy: true}));
+      this.parent().remove(model, _.extend(options, {noproxy: true}));
     }, this);
 
     // insert parent reseted models
     _.each(models, function (model) {
-      this.parent()._add(model, _.extend(options, {noproxy: true}));
+      this.parent().add(model, _.extend(options, {noproxy: true}));
     }, this);
 
     return this._resetSubset(models, options);
@@ -95,8 +95,8 @@
    * @param {Object} options
    * @return {Object} model
    */
-  Subset._add = function (model, options) {
-    return this.parent()._add(model, options);
+  Subset.add = function (model, options) {
+    return this.parent().add(model, options);
   };
 
   /**
@@ -107,7 +107,7 @@
    * @return {Object} model
    */
   Subset._addToSubset = function (model, options) {
-    return Backbone.Collection.prototype._add.call(this, model, options);
+    return Backbone.Collection.prototype.add.call(this, model, options);
   }
 
   /**
@@ -117,8 +117,8 @@
    * @param {Object} options
    * @return {Object} model
    */
-  Subset._remove = function (model, options) {
-    return this.parent()._remove(model, options);
+  Subset.remove = function (model, options) {
+    return this.parent().remove(model, options);
   };
 
   /**
@@ -129,7 +129,7 @@
    * @return {Object} model
    */
   Subset._removeFromSubset = function (model, options) {
-    return Backbone.Collection.prototype._remove.call(this, model, options);
+    return Backbone.Collection.prototype.remove.call(this, model, options);
   }
 
   /**
