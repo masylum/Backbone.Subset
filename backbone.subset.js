@@ -30,6 +30,10 @@
 
     this.parent().bind('all', this._proxyEvents);
 
+    if (this.beforeInitialize) {
+      this.beforeInitialize.apply(this, arguments);
+    }
+
     this._reset();
     this.reset(models || this.parent().models, {silent: true});
     this.initialize.apply(this, arguments);
