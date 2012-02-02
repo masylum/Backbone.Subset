@@ -193,7 +193,14 @@ describe('Aggregated collections', function () {
     assert.deepEqual(_.pluck(tasks.models, 'cid'), ['c6', 'c7', 'c8']);
     assert.deepEqual(_.pluck(archived_tasks.models, 'cid'), ['c8', 'c7']);
 
-    happened = {archived_tasks: 0, tasks: 0, tasks_add: 0, archived_tasks_add: 0, tasks_remove: 0, archived_tasks_remove: 0};
+    happened = {
+      archived_tasks: 0
+    , tasks: 0
+    , tasks_add: 0
+    , archived_tasks_add: 0
+    , tasks_remove: 0
+    , archived_tasks_remove: 0
+    };
     tasks.unbind('add');
     archived_tasks.unbind('add');
     tasks.unbind('reset');
@@ -208,7 +215,19 @@ describe('Aggregated collections', function () {
     tasks.bind('remove', inc('tasks_remove'));
     archived_tasks.bind('remove', inc('archived_tasks_remove'));
 
-    archived_tasks.reset([{id: 4, archived: 0, order: 4}, {id: 5, archived: 1, order: 5}, {id: 6, archived: 1, order: 6}]);
+    archived_tasks.reset([{
+      id: 4
+    , archived: 0
+    , order: 4
+    }, {
+      id: 5
+    , archived: 1
+    , order: 5
+    }, {
+      id: 6
+    , archived: 1
+    , order: 6
+    }]);
 
     assert.equal(happened.tasks, 0);
     assert.equal(happened.archived_tasks, 1);
@@ -224,8 +243,8 @@ describe('Aggregated collections', function () {
   });
 });
 
-describe('Live updating subset membership', function() {
-  it('removes a model from the subset if the model\'s attributes change such that it\'s no longer part of the set', function() {
+describe('Live updating subset membership', function () {
+  it('removes a model from the subset if the model\'s attributes change such that it\'s no longer part of the set', function () {
     tasks = new Collections.Tasks();
     archived_tasks = new Collections.ArchivedTasks(null, {liveupdate_keys: 'all'});
 
@@ -239,7 +258,7 @@ describe('Live updating subset membership', function() {
     assert.equal(archived_tasks.length, 1);
   });
   
-  it('adds a model to the set if the model\'s attributes change such that it should now be sieved into the set', function() {
+  it('adds a model to the set if the model\'s attributes change such that it should now be sieved into the set', function () {
     tasks = new Collections.Tasks();
     archived_tasks = new Collections.ArchivedTasks(null, {liveupdate_keys: 'all'});
 
@@ -253,7 +272,7 @@ describe('Live updating subset membership', function() {
     assert.equal(archived_tasks.length, 3);
   });
   
-  it('adds a model to the set if the model\'s attributes change such that it should now be sieved into the set', function() {
+  it('adds a model to the set if the model\'s attributes change such that it should now be sieved into the set', function () {
     tasks = new Collections.Tasks();
     archived_tasks = new Collections.ArchivedTasks(null, {liveupdate_keys: 'all'});
 
@@ -266,8 +285,8 @@ describe('Live updating subset membership', function() {
     assert.equal(tasks.length, 3);
     assert.equal(archived_tasks.length, 3);
   });
-  
-  it('won\'t update a subset\'s members if a key changes that is not listed in liveupdate_keys', function() {
+
+  it('won\'t update a subset\'s members if a key changes that is not listed in liveupdate_keys', function () {
     tasks = new Collections.Tasks();
     archived_tasks = new Collections.ArchivedTasks(null, {liveupdate_keys: ['order']});
 
@@ -285,7 +304,7 @@ describe('Live updating subset membership', function() {
     assert.equal(archived_tasks.length, 2);
   });
 
-  it('will update a subset\'s members if a key changes that is listed in liveupdate_keys', function() {
+  it('will update a subset\'s members if a key changes that is listed in liveupdate_keys', function () {
     tasks = new Collections.Tasks();
     archived_tasks = new Collections.ArchivedTasks(null, {liveupdate_keys: ['archived']});
 
