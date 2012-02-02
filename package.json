@@ -4,6 +4,6 @@
   "version": "0.0.2",
   "author": "Pau ramon <masylum@gmail.com>",
   "repository": {"type": "git", "url": "git://github.com/masylum/Backbone.Subset.git"},
-  "devDependencies": {"backbone": "*", "underscore": "*", "mocha": "*"},
+  "devDependencies": {"backbone": "0.5.3", "underscore": "*", "mocha": "*"},
   "main": "./backbone.subset"
 }

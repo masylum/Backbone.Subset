@@ -1,4 +1,4 @@
-/*global it, describe*/
+/*global it, describe, before*/
 var _ = require('underscore')
   , assert = require('assert')
   , happened = {}
@@ -6,12 +6,12 @@ var _ = require('underscore')
   , Collections = {}
 
   // instances
-  , tasks, archived_tasks;
+  , tasks, archived_tasks, project, project_tasks;
 
 function inc(what) {
   return function () {
     happened[what]++;
-  }
+  };
 }
 
 GLOBAL.Backbone = require('backbone');
@@ -25,6 +25,8 @@ Models.Task = Backbone.Model.extend({
     return !!this.get('archived');
   }
 });
+
+Models.Project = Backbone.Model.extend({});
 
 Collections.Tasks = Backbone.Collection.extend({
   model: Models.Task
@@ -45,8 +47,27 @@ Collections.ArchivedTasks = Backbone.Subset.extend({
   }
 });
 
+Collections.ProjectTasks = Backbone.Subset.extend({
+  beforeInitialize: function (models, options) {
+    this.project = options.project;
+  }
+, parent: function () {
+    return tasks;
+  }
+, sieve: function (task) {
+    if (this.project) {
+      return this.project.id === task.get('project_id');
+    }
+    else {
+      return false;
+    }
+  }
+});
+
+
 tasks = new Collections.Tasks();
 archived_tasks = new Collections.ArchivedTasks();
+
 
 // lengths
 describe('Subset', function () {
@@ -73,7 +94,7 @@ describe('Subset', function () {
 
   it('contains corrects ids', function () {
     assert.deepEqual(tasks.pluck('id'), [0, 1, 2, 3]);
-    assert.deepEqual(archived_tasks.pluck('id'), [3,1]);
+    assert.deepEqual(archived_tasks.pluck('id'), [3, 1]);
   });
 
   it('has a `get` function that behaves like the `Collection` one + bubbling', function () {
@@ -168,9 +189,9 @@ describe('Aggregated collections', function () {
     assert.equal(happened.archived_tasks, 1);
 
     assert.deepEqual(tasks.pluck('id'), [0, 1, 2]);
-    assert.deepEqual(archived_tasks.pluck('id'), [2,1]);
+    assert.deepEqual(archived_tasks.pluck('id'), [2, 1]);
     assert.deepEqual(_.pluck(tasks.models, 'cid'), ['c6', 'c7', 'c8']);
-    assert.deepEqual(_.pluck(archived_tasks.models, 'cid'), ['c8','c7']);
+    assert.deepEqual(_.pluck(archived_tasks.models, 'cid'), ['c8', 'c7']);
 
     happened = {archived_tasks: 0, tasks: 0, tasks_add: 0, archived_tasks_add: 0, tasks_remove: 0, archived_tasks_remove: 0};
     tasks.unbind('add');
@@ -280,5 +301,34 @@ describe('Live updating subset membership', function() {
     tasks.get(1).set({archived: 0});
     assert.equal(tasks.length, 3);
     assert.equal(archived_tasks.length, 2);
+  });
+});
+
+describe('Sieves dependant on an association', function () {
+  before(function () {
+    tasks.reset();
+    project = new Models.Project({id: 1});
+    project_tasks = new Collections.ProjectTasks([], {project: project});
+  });
+
+  it('it filters by association', function () {
+    happened = {tasks: 0, project_tasks: 0};
+    tasks.bind('add', inc('tasks'));
+    project_tasks.bind('add', inc('project_tasks'));
+
+    for (var i = 0; i < 4; i++) {
+      project_tasks.add({id: i, project_id: i % 2, order: i});
+    }
+
+    assert.equal(happened.tasks, 4);
+    assert.equal(happened.project_tasks, 2);
+
+    assert.equal(tasks.length, 4);
+    assert.equal(project_tasks.length, 2);
+  });
+
+  it('contains corrects ids', function () {
+    assert.deepEqual(tasks.pluck('id'), [0, 1, 2, 3]);
+    assert.deepEqual(project_tasks.pluck('id'), [1, 3]);
   });
 });
