@@ -183,7 +183,9 @@ describe('Aggregated collections', function () {
     tasks.bind('reset', inc('tasks'));
     archived_tasks.bind('reset', inc('archived_tasks'));
 
-    tasks.reset([{id: 0, archived: 0, order: 0}, {id: 1, archived: 1, order: 1}, {id: 2, archived: 1, order: 2}]);
+    tasks.reset([ {id: 0, archived: 0, order: 0}
+                , {id: 1, archived: 1, order: 1}
+                , {id: 2, archived: 1, order: 2}]);
 
     assert.equal(happened.tasks, 1);
     assert.equal(happened.archived_tasks, 1);
