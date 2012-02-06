@@ -209,7 +209,7 @@ describe('Aggregated collections', function () {
     archived_tasks.unbind('remove');
 
     tasks.bind('add', inc('tasks_add'));
-    archived_tasks.bind('add', inc('threads_add'));
+    archived_tasks.bind('add', inc('archived_tasks_add'));
     tasks.bind('reset', inc('tasks'));
     archived_tasks.bind('reset', inc('archived_tasks'));
     tasks.bind('remove', inc('tasks_remove'));
@@ -229,11 +229,11 @@ describe('Aggregated collections', function () {
     , order: 6
     }]);
 
-    assert.equal(happened.tasks, 0);
-    assert.equal(happened.archived_tasks, 1);
-    assert.equal(happened.tasks_add, 3);
+    assert.equal(happened.tasks_add, 0);
     assert.equal(happened.archived_tasks_add, 0);
-    assert.equal(happened.tasks_remove, 2);
+    assert.equal(happened.tasks, 1);
+    assert.equal(happened.archived_tasks, 1);
+    assert.equal(happened.tasks_remove, 0);
     assert.equal(happened.archived_tasks_remove, 0);
 
     assert.deepEqual(tasks.pluck('id'), [0, 4, 5, 6]);

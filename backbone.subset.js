@@ -48,21 +48,26 @@
    * @return {Object} collection
    */
   Subset.reset = function (models, options) {
+    var parent_models = _.clone(this.parent().models)
+      , ids = this.pluck('id');
+
     models = models || [];
     models = _.isArray(models) ? models : [models];
     options = options || {};
 
     // delete parent reseted models
-    this.each(function (model) {
-      this.parent()._remove(model, _.extend(options, {noproxy: true}));
+    parent_models = _.reject(parent_models, function (model) {
+      return ids.indexOf(model.id) !== -1;
     }, this);
 
     // insert parent reseted models
     _.each(models, function (model) {
-      this.parent()._add(model, _.extend(options, {noproxy: true}));
+      parent_models.push(model);
     }, this);
 
-    return this._resetSubset(models, options);
+    this.parent().reset(parent_models, options);
+
+    return this;
   };
 
   /**
@@ -80,9 +85,7 @@
     this._reset();
 
     this.parent().each(function (model) {
-      if (this.sieve(model)) {
-        this._addToSubset(model, {silent: true});
-      }
+      this._addToSubset(model, {silent: true});
     }, this);
 
     if (!options.silent) {
@@ -111,7 +114,9 @@
    * @return {Object} model
    */
   Subset._addToSubset = function (model, options) {
-    return Backbone.Collection.prototype._add.call(this, model, options);
+    if (this.sieve(model)) {
+      return Backbone.Collection.prototype._add.call(this, model, options);
+    }
   }
 
   /**
