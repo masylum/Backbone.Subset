@@ -36,7 +36,10 @@
     }
 
     this._reset();
-    this.reset(models || this.parent().models, {silent: true});
+
+    if (models) {
+      this.reset(models, {silent: true});
+    }
     this.initialize.apply(this, arguments);
   };
 
