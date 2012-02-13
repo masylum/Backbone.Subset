@@ -52,23 +52,22 @@
    */
   Subset.reset = function (models, options) {
     var parent_models = _.clone(this.parent().models)
-      , ids = this.pluck('id');
+      , ids = _(parent_models).pluck('id');
 
     models = models || [];
     models = _.isArray(models) ? models : [models];
     options = options || {};
 
-    // delete parent reseted models
-    parent_models = _.reject(parent_models, function (model) {
-      return ids.indexOf(model.id) !== -1;
-    }, this);
-
     // insert parent reseted models
     _.each(models, function (model) {
-      parent_models.push(model);
+      if (ids.indexOf(model.id) === -1) {
+        parent_models.push(model);
+      }
     }, this);
 
-    this.parent().reset(parent_models, options);
+    this.parent().reset(parent_models, _.extend(options, {subset_reset: true}));
+
+    this._resetSubset(models, options);
 
     return this;
   };
@@ -87,7 +86,7 @@
     this.each(this._unbindModelEvents);
     this._reset();
 
-    this.parent().each(function (model) {
+    _(models).each(function (model) {
       this._addToSubset(model, {silent: true});
     }, this);
 
@@ -117,10 +116,26 @@
    * @return {Object} model
    */
   Subset._addToSubset = function (model, options) {
+    var parents_model;
+
+    if (model.id && (parents_model = this.parent().get(model.id))) {
+      if (!(model instanceof Backbone.Model)) {
+        parents_model.set(model, {silent: true});
+        model = parents_model;
+      }
+      else {
+        parents_model.set(model.attributes, {silent: true});
+        model = parents_model;
+      }
+    }
+    else {
+      model = Backbone.Collection.prototype._prepareModel.call(this, model, options);
+    }
+
     if (this.sieve(model)) {
       return Backbone.Collection.prototype._add.call(this, model, options);
     }
-  }
+  };
 
   /**
    * Remove a model from the subset collection
@@ -142,7 +157,7 @@
    */
   Subset._removeFromSubset = function (model, options) {
     return Backbone.Collection.prototype._remove.call(this, model, options);
-  }
+  };
 
   /**
    * Prepare a model to be added to a collection
@@ -193,7 +208,9 @@
 
     // model == collection
     if (ev === 'reset' && model !== this && model.any(this.sieve)) {
-      this._resetSubset(model.models, collection);
+      if (!collection.subset_reset) {
+        this._resetSubset(model.models, collection);
+      }
     }
   };
 
