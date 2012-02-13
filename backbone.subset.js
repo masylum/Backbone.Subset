@@ -207,7 +207,7 @@
     }
 
     // model == collection
-    if (ev === 'reset' && model !== this && model.any(this.sieve)) {
+    if (ev === 'reset' && model !== this) {
       if (!collection.subset_reset) {
         this._resetSubset(model.models, collection);
       }
