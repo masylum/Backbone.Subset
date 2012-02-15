@@ -35,11 +35,17 @@
       this.beforeInitialize.apply(this, arguments);
     }
 
-    this._reset();
+    if (!options.no_reset) {
+      this._reset();
 
-    if (models) {
-      this.reset(models, {silent: true});
+      if (models) {
+        this.reset(models, {silent: true});
+      }
     }
+    else {
+      this._resetSubset(this.parent().models, {silent: true});
+    }
+
     this.initialize.apply(this, arguments);
   };
 
