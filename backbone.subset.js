@@ -23,13 +23,14 @@
   Backbone.Subset = function Subset(models, options) {
     options = options || {};
 
-    this.model = this.parent().model;
-    this.comparator = this.comparator || options.comparator || this.parent().comparator;
+    this._parent = options.parent || (this.parent && this.parent());
+    this.model = this._parent.model;
+    this.comparator = this.comparator || options.comparator || this._parent.comparator;
     this.liveupdate_keys = this.liveupdate_keys || options.liveupdate_keys || 'none';
 
     _.bindAll(this, '_onModelEvent', '_unbindModelEvents', '_proxyEvents');
 
-    this.parent().bind('all', this._proxyEvents);
+    this._parent.bind('all', this._proxyEvents);
 
     if (this.beforeInitialize) {
       this.beforeInitialize.apply(this, arguments);
@@ -43,7 +44,7 @@
       }
     }
     else {
-      this._resetSubset(this.parent().models, {silent: true});
+      this._resetSubset(this._parent.models, {silent: true});
     }
 
     this.initialize.apply(this, arguments);
@@ -57,7 +58,7 @@
    * @return {Object} collection
    */
   Subset.reset = function (models, options) {
-    var parent_models = _.clone(this.parent().models)
+    var parent_models = _.clone(this._parent.models)
       , ids = _(parent_models).pluck('id');
 
     models = models || [];
@@ -71,7 +72,7 @@
       }
     }, this);
 
-    this.parent().reset(parent_models, _.extend(options, {subset_reset: true}));
+    this._parent.reset(parent_models, _.extend(options, {subset_reset: true}));
 
     this._resetSubset(models, options);
 
@@ -111,7 +112,7 @@
    * @return {Object} model
    */
   Subset._add = function (model, options) {
-    return this.parent()._add(model, options);
+    return this._parent._add(model, options);
   };
 
   /**
@@ -124,7 +125,7 @@
   Subset._addToSubset = function (model, options) {
     var parents_model;
 
-    if (model.id && (parents_model = this.parent().get(model.id))) {
+    if (model.id && (parents_model = this._parent.get(model.id))) {
       if (!(model instanceof Backbone.Model)) {
         parents_model.set(model, {silent: true});
         model = parents_model;
@@ -151,7 +152,7 @@
    * @return {Object} model
    */
   Subset._remove = function (model, options) {
-    return this.parent()._remove(model, options);
+    return this._parent._remove(model, options);
   };
 
   /**
@@ -175,13 +176,13 @@
   Subset._prepareModel = function (model, options) {
     if (!(model instanceof Backbone.Model)) {
       var attrs = model;
-      model = new this.model(attrs, {collection: this.parent()});
+      model = new this.model(attrs, {collection: this._parent});
 
       if (model.validate && !model._performValidation(model.attributes, options)) {
         model = false;
       }
     } else if (!model.collection) {
-      model.collection = this.parent();
+      model.collection = this._parent;
     }
     model = this.sieve(model) ? model : false;
     return model;
