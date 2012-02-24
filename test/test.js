@@ -51,10 +51,7 @@ Collections.ArchivedTasks = Backbone.Subset.extend({
 });
 
 Collections.UrgentTasks = Backbone.Subset.extend({
-  parent: function () {
-    return tasks;
-  }
-, sieve: function (task) {
+  sieve: function (task) {
     return task.isUrgent();
   }
 , comparator: function (m) {
@@ -85,7 +82,7 @@ Collections.ProjectTasks = Backbone.Subset.extend({
 
 tasks = new Collections.Tasks();
 archived_tasks = new Collections.ArchivedTasks();
-urgent_tasks = new Collections.UrgentTasks();
+urgent_tasks = new Collections.UrgentTasks([], {parent: tasks});
 
 
 // lengths
