@@ -82,6 +82,29 @@
   };
 
   /**
+   * Re-applies the sieve to the subset
+   *
+   * @param {Object} options
+   * @return {Object} collection
+   */
+  Subset.recalculate = function (options) {
+    options = options || {};
+    var changed = false;
+
+    // re-evaluate each model's eligibility
+    this._parent.each(function (model) {
+      changed |= this._updateModelMembership(model);
+    }, this);
+
+    // only trigger reset event if the subset actually changed
+    if (changed && !options.silent) {
+      this.trigger('reset', this, options);
+    }
+
+    return this;
+  };
+
+  /**
    * Resets the subset collection
    *
    * @param {Object} models
@@ -227,8 +250,11 @@
   };
 
   /**
-   * Determines whether a model should be in the subset, and adds or removes it
+   * Determines whether a model should be in the subset, and adds or removes it.
+   * Returns a boolean indicating if the model's membership changed.
+   *
    * @param {Object} model
+   * @return {Boolean} changed
    */
   Subset._updateModelMembership = function (model) {
     var hasId = !model.id
@@ -237,12 +263,16 @@
     if (this.sieve(model)) {
       if (!alreadyInSubset) {
         this._addToSubset(model);
+        return true;
       }
     } else {
       if (alreadyInSubset) {
         this._removeFromSubset(model);
+        return true;
       }
     }
+
+    return false;
   };
 
   /**
