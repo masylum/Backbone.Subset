@@ -113,8 +113,8 @@
    * @param {Object} options
    * @return {Object} model
    */
-  Subset._add = function (model, options) {
-    return getValue(this, 'parent')._add(model, options);
+  Subset.add = function (model, options) {
+    return getValue(this, 'parent').add(model, options);
   };
 
   /**
@@ -143,7 +143,7 @@
     }
 
     if (this.sieve(model)) {
-      return Backbone.Collection.prototype._add.call(this, model, options);
+      return Backbone.Collection.prototype.add.call(this, model, options);
     }
   };
 
@@ -154,8 +154,8 @@
    * @param {Object} options
    * @return {Object} model
    */
-  Subset._remove = function (model, options) {
-    return getValue(this, 'parent')._remove(model, options);
+  Subset.remove = function (model, options) {
+    return getValue(this, 'parent').remove(model, options);
   };
 
   /**
@@ -166,7 +166,7 @@
    * @return {Object} model
    */
   Subset._removeFromSubset = function (model, options) {
-    return Backbone.Collection.prototype._remove.call(this, model, options);
+    return Backbone.Collection.prototype.remove.call(this, model, options);
   };
 
   /**
