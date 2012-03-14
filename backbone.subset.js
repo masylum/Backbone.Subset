@@ -21,15 +21,23 @@
    * @return {Object}
    */
   Backbone.Subset = function Subset(models, options) {
-    options = options || {};
+    var parent;
 
-    this.model = this.parent().model;
-    this.comparator = this.comparator || options.comparator || this.parent().comparator;
+    options = options || {};
+    if (options.parent) this.parent = options.parent;
+
+    // A parent is required at this point
+    if (!(parent = getValue(this, 'parent'))) {
+      throw new Error("Can't create a subset without a parent collection");
+    }
+
+    this.model = parent.model;
+    this.comparator = this.comparator || options.comparator || parent.comparator;
     this.liveupdate_keys = this.liveupdate_keys || options.liveupdate_keys || 'none';
 
     _.bindAll(this, '_onModelEvent', '_unbindModelEvents', '_proxyEvents');
 
-    this.parent().bind('all', this._proxyEvents);
+    parent.bind('all', this._proxyEvents);
 
     if (this.beforeInitialize) {
       this.beforeInitialize.apply(this, arguments);
@@ -43,7 +51,7 @@
       }
     }
     else {
-      this._resetSubset(this.parent().models, {silent: true});
+      this._resetSubset(parent.models, {silent: true});
     }
 
     this.initialize.apply(this, arguments);
@@ -57,7 +65,8 @@
    * @return {Object} collection
    */
   Subset.reset = function (models, options) {
-    var parent_models = _.clone(this.parent().models)
+    var parent = getValue(this, 'parent')
+      , parent_models = _.clone(parent.models)
       , ids = _(parent_models).pluck('id');
 
     models = models || [];
@@ -71,7 +80,7 @@
       }
     }, this);
 
-    this.parent().reset(parent_models, _.extend(options, {subset_reset: true}));
+    parent.reset(parent_models, _.extend(options, {subset_reset: true}));
 
     this._resetSubset(models, options);
 
@@ -111,7 +120,7 @@
    * @return {Object} model
    */
   Subset._add = function (model, options) {
-    return this.parent()._add(model, options);
+    return getValue(this, 'parent')._add(model, options);
   };
 
   /**
@@ -122,9 +131,10 @@
    * @return {Object} model
    */
   Subset._addToSubset = function (model, options) {
-    var parents_model;
+    var parent = getValue(this, 'parent')
+      , parents_model;
 
-    if (model.id && (parents_model = this.parent().get(model.id))) {
+    if (model.id && (parents_model = parent.get(model.id))) {
       if (!(model instanceof Backbone.Model)) {
         parents_model.set(model, {silent: true});
         model = parents_model;
@@ -151,7 +161,7 @@
    * @return {Object} model
    */
   Subset._remove = function (model, options) {
-    return this.parent()._remove(model, options);
+    return getValue(this, 'parent')._remove(model, options);
   };
 
   /**
@@ -173,15 +183,17 @@
    * @return {Object} model
    */
   Subset._prepareModel = function (model, options) {
+    var parent = getValue(this, 'parent');
+
     if (!(model instanceof Backbone.Model)) {
       var attrs = model;
-      model = new this.model(attrs, {collection: this.parent()});
+      model = new this.model(attrs, {collection: parent});
 
       if (model.validate && !model._performValidation(model.attributes, options)) {
         model = false;
       }
     } else if (!model.collection) {
-      model.collection = this.parent();
+      model.collection = parent;
     }
     model = this.sieve(model) ? model : false;
     return model;
@@ -246,6 +258,14 @@
    */
   Subset._unbindModelEvents = function (model) {
     model.unbind('all', this._onModelEvent);
+  };
+
+  /**
+   * Duplicate of Backbone property getter
+   */
+  function getValue(object, prop) {
+    if (!(object && object[prop])) return null;
+    return _.isFunction(object[prop]) ? object[prop]() : object[prop];
   };
 
   _.extend(Backbone.Subset.prototype, Backbone.Collection.prototype, Subset);

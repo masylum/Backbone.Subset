@@ -51,10 +51,7 @@ Collections.ArchivedTasks = Backbone.Subset.extend({
 });
 
 Collections.UrgentTasks = Backbone.Subset.extend({
-  parent: function () {
-    return tasks;
-  }
-, sieve: function (task) {
+  sieve: function (task) {
     return task.isUrgent();
   }
 , comparator: function (m) {
@@ -85,11 +82,23 @@ Collections.ProjectTasks = Backbone.Subset.extend({
 
 tasks = new Collections.Tasks();
 archived_tasks = new Collections.ArchivedTasks();
-urgent_tasks = new Collections.UrgentTasks();
+urgent_tasks = new Collections.UrgentTasks([], {parent: tasks});
 
 
 // lengths
 describe('Subset', function () {
+  it('should throw an error if a parent collection is not specified', function() {
+    happened = false;
+
+    try {
+      new Collections.UrgentTasks();
+    } catch (e) {
+      happened = true;
+    }
+
+    assert.equal(happened, true);
+  });
+
   it('has a `add` function that behaves like the `Collection` one + bubbling', function () {
     happened = {tasks: 0, archived_tasks: 0};
     tasks.bind('add', inc('tasks'));
