@@ -14,6 +14,7 @@ function inc(what) {
   };
 }
 
+GLOBAL._ = _
 GLOBAL.Backbone = require('backbone');
 require('../backbone.subset');
 

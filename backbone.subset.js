@@ -5,13 +5,7 @@
 */
 (function () {
 
-  var root = this
-    , Subset = {}
-    , _ = root._;
-
-  if (!_ && (typeof require !== 'undefined')) {
-    _ = require('underscore')._;
-  }
+  var Subset = {}
 
   /**
    * Subset constructor
