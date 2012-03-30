@@ -111,7 +111,7 @@ describe('Subset', function () {
 
     // Initial state
     for (var i = 0; i < 2; i++) {
-      archived_tasks.add({id: i, archived: i % 2, order: i});
+      archived_tasks.add({id: i, archived: i % 2, urgent: 0,order: i});
     }
   });
 
@@ -276,6 +276,24 @@ describe('Subset', function () {
       assert.deepEqual(archived_tasks.pluck('id'), [1]);
       assert.deepEqual(_.pluck(tasks.models, 'cid'), ['c0', 'c1']);
       assert.deepEqual(_.pluck(archived_tasks.models, 'cid'), ['c1']);
+    });
+
+    it('resets only relevant collections', function () {
+      tasks.bind('reset', inc('tasks'));
+      archived_tasks.bind('reset', inc('archived_tasks'));
+      urgent_tasks.bind('reset', inc('urgent_tasks'));
+
+      console.log('YAI');
+      urgent_tasks.reset([ {id: 2, archived: 0, urgent: 1, order: 2}
+                         , {id: 3, archived: 0, urgent: 1, order: 3}]);
+
+      assert.equal(happened.tasks, 1);
+      assert.equal(happened.archived_tasks, 0);
+      assert.equal(happened.urgent_tasks, 1);
+
+      assertElements(tasks.pluck('id'), [0, 1, 2, 3]);
+      assertElements(archived_tasks.pluck('id'), [1]);
+      assertElements(urgent_tasks.pluck('id'), [2, 3]);
     });
   });
 

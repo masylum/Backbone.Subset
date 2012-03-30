@@ -240,11 +240,19 @@
    */
   Subset._proxyReset = function (collection, options) {
     options = options || {};
+    var ids
+      , sieved_ids
+      , self = this;
 
-    if (collection !== this && !options || (options && !options.noproxy)) {
-      if (!options.model_ids || _.intersection(this.pluck('id'), options.model_ids).length) {
-        this._resetSubset(_.extend(_.clone(options), {proxied: true}));
-      }
+    if (options.model_ids) {
+      ids = _.intersection(this.pluck('id'), options.model_ids);
+      sieved_ids = _.pluck(_.filter(ids, function (id) {
+        return self.sieve(self.get(id));
+      }), 'id');
+    }
+
+    if ((!options.model_ids || this === collection || sieved_ids.length) && (!options || !options.noproxy)) {
+      this._resetSubset(_.extend(_.clone(options), {proxied: true}));
     }
   };
 
