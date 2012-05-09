@@ -110,7 +110,7 @@
 
     // re-evaluate each model's eligibility
     _.result(this, 'parent').each(function (model) {
-      changed |= this._updateModelMembership(model);
+      changed |= this._updateModelMembership(model, {silent: true});
     }, this);
 
     // only trigger reset event if the subset actually changed
@@ -291,18 +291,18 @@
    * @param {Object} model
    * @return {Boolean} changed
    */
-  Subset._updateModelMembership = function (model) {
+  Subset._updateModelMembership = function (model, options) {
     var hasId = !model.id
       , alreadyInSubset = this._byCid[model.cid] || (hasId && this._byId[model.id]);
 
     if (this.sieve(model)) {
       if (!alreadyInSubset) {
-        this._addToSubset(model);
+        this._addToSubset(model, options);
         return true;
       }
     } else {
       if (alreadyInSubset) {
-        this._removeFromSubset(model);
+        this._removeFromSubset(model, options);
         return true;
       }
     }
