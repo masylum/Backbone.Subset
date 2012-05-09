@@ -5,6 +5,6 @@
   "author": "Pau ramon <masylum@gmail.com>",
   "contributors": ["Saimon Moore <saimon@saimonmoore.net>", "Philip Roberts <phil@latentflip.com>"],
   "repository": {"type": "git", "url": "git://github.com/masylum/Backbone.Subset.git"},
-  "devDependencies": {"backbone": "0.5.3", "underscore": "*", "mocha": "*"},
+  "devDependencies": {"backbone": "0.9.1", "underscore": "1.3.3", "mocha": "*"},
   "main": "./backbone.subset"
 }
