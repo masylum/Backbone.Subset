@@ -21,7 +21,7 @@
     if (options.parent) this.parent = options.parent;
 
     // A parent is required at this point
-    if (!(parent = getValue(this, 'parent'))) {
+    if (!(parent = _.result(this, 'parent'))) {
       throw new Error("Can't create a subset without a parent collection");
     }
 
@@ -59,7 +59,7 @@
    * @return {Object} collection
    */
   Subset.reset = function (models, options) {
-    var parent = getValue(this, 'parent')
+    var parent = _.result(this, 'parent')
       , parent_models = _.clone(parent.models)
       , ids = _(parent_models).pluck('id');
 
@@ -137,7 +137,7 @@
    * @return {Object} model
    */
   Subset.add = function (model, options) {
-    return getValue(this, 'parent').add(model, options);
+    return _.result(this, 'parent').add(model, options);
   };
 
   /**
@@ -148,7 +148,7 @@
    * @return {Object} model
    */
   Subset._addToSubset = function (model, options) {
-    var parent = getValue(this, 'parent')
+    var parent = _.result(this, 'parent')
       , parents_model;
 
     if (model.id && (parents_model = parent.get(model.id))) {
@@ -178,7 +178,7 @@
    * @return {Object} model
    */
   Subset.remove = function (model, options) {
-    return getValue(this, 'parent').remove(model, options);
+    return _.result(this, 'parent').remove(model, options);
   };
 
   /**
@@ -200,7 +200,7 @@
    * @return {Object} model
    */
   Subset._prepareModel = function (model, options) {
-    var parent = getValue(this, 'parent');
+    var parent = _.result(this, 'parent');
 
     if (!(model instanceof Backbone.Model)) {
       var attrs = model;
@@ -282,14 +282,6 @@
    */
   Subset._unbindModelEvents = function (model) {
     model.unbind('all', this._onModelEvent);
-  };
-
-  /**
-   * Duplicate of Backbone property getter
-   */
-  function getValue(object, prop) {
-    if (!(object && object[prop])) return null;
-    return _.isFunction(object[prop]) ? object[prop]() : object[prop];
   };
 
   _.extend(Backbone.Subset.prototype, Backbone.Collection.prototype, Subset);
