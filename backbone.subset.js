@@ -89,7 +89,7 @@
     // xored ids are the ones added/removed
     xored_ids = xor(ids, _.pluck(models, 'id'));
 
-    this.parent().reset(parent_models, _.extend(options, {silent: true}));
+    this.parent().reset(parent_models, _.extend({silent: true}, options));
     this.parent().trigger('reset', this, {model_ids: xored_ids});
 
     return this;
