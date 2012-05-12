@@ -90,7 +90,7 @@
     xored_ids = xor(ids, _.pluck(models, 'id'));
 
     this.parent().reset(parent_models, _.extend({silent: true}, options));
-    this.parent().trigger('reset', this, {model_ids: xored_ids});
+    this.parent().trigger('reset', this, _.extend({model_ids: xored_ids}, options));
 
     return this;
   };
