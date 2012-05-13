@@ -1,6 +1,10 @@
+MOCHA = ./node_modules/.bin/mocha --reporter spec
 NODE = node
 
 test:
-	./node_modules/.bin/mocha --reporter spec
+	@${MOCHA} test/specs.js
+
+benchmark:
+	@${NODE} test/benchmarks.js
 
 .PHONY: test

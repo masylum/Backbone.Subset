@@ -283,7 +283,6 @@ describe('Subset', function () {
       archived_tasks.bind('reset', inc('archived_tasks'));
       urgent_tasks.bind('reset', inc('urgent_tasks'));
 
-      console.log('YAI');
       urgent_tasks.reset([ {id: 2, archived: 0, urgent: 1, order: 2}
                          , {id: 3, archived: 0, urgent: 1, order: 3}]);
 
