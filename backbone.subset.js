@@ -162,7 +162,7 @@
    */
   Subset._removeFromSubset = function (model, options) {
     return Backbone.Collection.prototype.remove.call(this, model, options);
-  }
+  };
 
   /**
    * Prepare a model to be added to a collection
