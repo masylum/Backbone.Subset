@@ -78,7 +78,6 @@ to be 'none' (this is the default).
 * To limit which model keys trigger a live update, set `liveupdate\_keys`
 to be an array of attributes: `liveupdate\_keys = ['archived']`.
 
-
 ## Tests
 
 You must have node installed in order to run the tests.
@@ -88,11 +87,20 @@ npm install
 make
 ```
 
+## Benchmarks
+
+You must have node installed in order to run the benchmarks.
+
+```
+npm install
+make benchmark
+```
+
 ## License
 
 (The MIT License)
 
-Copyright (c) 2010-2011 Pau Ramon <masylum@gmail.com>
+Copyright (c) 2010-2012 Pau Ramon <masylum@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
