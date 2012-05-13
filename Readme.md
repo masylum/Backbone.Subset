@@ -2,6 +2,11 @@
 
 A subset collection that contains pointers to models from a parent collection.
 
+## WARNING!!
+
+This branch has not been battle-hardened in production like the `master` one.
+The benchmarks show some performance regression by using this module with `Backbone@0.9.x`.
+
 ## Use case?
 
 Having a collection that represents only a subset of your models.
