@@ -6,6 +6,7 @@ var _ = require('underscore')
   // instances
   , tasks, archived_tasks, urgent_tasks, project, project_tasks;
 
+GLOBAL._ = _
 GLOBAL.Backbone = require('backbone');
 require('../backbone.subset');
 

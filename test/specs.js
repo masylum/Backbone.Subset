@@ -24,6 +24,7 @@ _.uniqueId = function (prefix) {
   return prefix ? prefix + id : id;
 };
 
+GLOBAL._ = _
 GLOBAL.Backbone = require('backbone');
 require('../backbone.subset');
 
@@ -113,6 +114,18 @@ describe('Subset', function () {
     for (var i = 0; i < 2; i++) {
       archived_tasks.add({id: i, archived: i % 2, urgent: 0,order: i});
     }
+  });
+
+  it('should throw an error if a parent collection is not specified', function() {
+    happened = false;
+
+    try {
+      new Backbone.Subset();
+    } catch (e) {
+      happened = true;
+    }
+
+    assert.equal(happened, true);
   });
 
   it('has a `add` function that behaves like the `Collection` one + bubbling', function () {

@@ -13,9 +13,10 @@ or changing a *Task* will update that subset collection according to a given `si
 
 The API is almost the same as `Backbone.Collection`.
 
-  * You must implement a `parent` function that returns the collection the subset belongs.
+  * You must implement a `parent` function that returns the collection the subset belongs or pass a `parent` option.
   * You must implement a `sieve` function that will be used to filter the parent collection.
-  * You can pass the option `{noproxy: true}` if you don't want the event to bubble from the parent to the subset.
+  * You can pass the option `{noproxy: true}` if you don't want the event to bubble from the parent to the subset
+  (not recommended since it can leave your collections in a weird state).
 
 ``` javascript
 Models.Task = Backbone.Model.extend({

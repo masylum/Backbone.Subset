@@ -5,13 +5,7 @@
 */
 (function () {
 
-  var root = this
-    , Subset = {}
-    , _ = root._;
-
-  if (!_ && (typeof require !== 'undefined')) {
-    _ = require('underscore')._;
-  }
+  var Subset = {};
 
   /**
    * Returns the xor of two sets
@@ -32,19 +26,30 @@
    * @return {Object}
    */
   Backbone.Subset = function Subset(models, options) {
+    var parent;
+
     options = options || {};
 
-    this.model = this.parent().model;
-    this.comparator = this.comparator || options.comparator || this.parent().comparator;
-    this.liveupdate_keys = this.liveupdate_keys || options.liveupdate_keys;
+    if (options.parent) {
+      this.parent = options.parent;
+    }
+
+    // A parent is required at this point
+    if (!(parent = _.result(this, 'parent'))) {
+      throw new Error("Can't create a subset without a parent collection");
+    }
+
+    this.model = parent.model;
+    this.comparator = this.comparator || options.comparator || parent.comparator;
+    this.liveupdate_keys = this.liveupdate_keys || options.liveupdate_keys || 'none';
 
     _.bindAll(this, '_onModelEvent', '_unbindModelEvents', '_proxyAdd'
               , '_proxyReset', '_proxyRemove', '_proxyChange');
 
-    this.parent().bind('add', this._proxyAdd);
-    this.parent().bind('remove', this._proxyRemove);
-    this.parent().bind('reset', this._proxyReset);
-    this.parent().bind('all', this._proxyChange);
+    parent.bind('add', this._proxyAdd);
+    parent.bind('remove', this._proxyRemove);
+    parent.bind('reset', this._proxyReset);
+    parent.bind('all', this._proxyChange);
 
     if (this.beforeInitialize) {
       this.beforeInitialize.apply(this, arguments);
@@ -52,7 +57,7 @@
 
     if (!options.no_reset) {
       this._reset();
-      this.reset(models || this.parent().models, {silent: true});
+      this.reset(models || parent.models, {silent: true});
     } else {
       this._resetSubset({silent: true});
     }
@@ -68,7 +73,8 @@
    * @return {Object} collection
    */
   Subset.reset = function (models, options) {
-    var parent_models = _.clone(this.parent().models)
+    var parent = _.result(this, 'parent')
+      , parent_models = _.clone(parent.models)
       , xored_ids
       , ids = this.pluck('id');
 
@@ -89,8 +95,33 @@
     // xored ids are the ones added/removed
     xored_ids = xor(ids, _.pluck(models, 'id'));
 
-    this.parent().reset(parent_models, _.extend({silent: true}, options));
-    this.parent().trigger('reset', this, _.extend({model_ids: xored_ids}, options));
+    parent.reset(parent_models, _.extend({silent: true}, options));
+    parent.trigger('reset', this, _.extend({model_ids: xored_ids}, options));
+
+    return this;
+  };
+
+  /**
+   * Re-applies the sieve to the subset
+   *
+   * @param {Object} options
+   * @return {Object} collection
+   */
+  Subset.recalculate = function (options) {
+    options = options || {};
+
+    var changed
+      , self = this;
+
+    // re-evaluate each model's eligibility
+    changed = _.result(this, 'parent').reduce(function (changed, model) {
+      return changed || self._updateModelMembership(model, {silent: true});
+    }, false);
+
+    // only trigger reset event if the subset actually changed
+    if (changed && !options.silent) {
+      this.trigger('reset', this, options);
+    }
 
     return this;
   };
@@ -107,7 +138,7 @@
     this.each(this._unbindModelEvents);
     this._reset();
 
-    this.parent().each(function (model) {
+    _.result(this, 'parent').each(function (model) {
       this._addToSubset(model, {silent: true});
     }, this);
 
@@ -126,7 +157,7 @@
    * @return {Object} model
    */
   Subset.add = function (model, options) {
-    return this.parent().add(model, options);
+    return _.result(this, 'parent').add(model, options);
   };
 
   /**
@@ -150,7 +181,7 @@
    * @return {Object} model
    */
   Subset.remove = function (model, options) {
-    return this.parent().remove(model, options);
+    return _.result(this, 'parent').remove(model, options);
   };
 
   /**
@@ -172,15 +203,17 @@
    * @return {Object} model
    */
   Subset._prepareModel = function (model, options) {
+    var parent = _.result(this, 'parent');
+
     if (!(model instanceof Backbone.Model)) {
       var attrs = model;
-      model = new this.model(attrs, {collection: this.parent()});
+      model = new this.model(attrs, {collection: parent});
 
       if (model.validate && !model._performValidation(model.attributes, options)) {
         model = false;
       }
     } else if (!model.collection) {
-      model.collection = this.parent();
+      model.collection = parent;
     }
     model = this.sieve(model) ? model : false;
     return model;
@@ -257,23 +290,29 @@
   };
 
   /**
-   * Determines whether a model should be in the subset, and adds or removes it
+   * Determines whether a model should be in the subset, and adds or removes it.
+   * Returns a boolean indicating if the model's membership changed.
    *
    * @param {Object} model
+   * @return {Boolean} changed
    */
-  Subset._updateModelMembership = function (model) {
+  Subset._updateModelMembership = function (model, options) {
     var hasId = !model.id
       , alreadyInSubset = this._byCid[model.cid] || (hasId && this._byId[model.id]);
 
     if (this.sieve(model)) {
       if (!alreadyInSubset) {
-        this._addToSubset(model);
+        this._addToSubset(model, options);
+        return true;
       }
     } else {
       if (alreadyInSubset) {
-        this._removeFromSubset(model);
+        this._removeFromSubset(model, options);
+        return true;
       }
     }
+
+    return false;
   };
 
   /**
