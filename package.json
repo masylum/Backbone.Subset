@@ -7,6 +7,6 @@
                    "Philip Roberts <phil@latentflip.com>",
                    "Steven Lindberg <stevenjohnlindberg@gmail.com>"],
   "repository": {"type": "git", "url": "git://github.com/masylum/Backbone.Subset.git"},
-  "devDependencies": {"backbone": "0.9.1", "underscore": "1.3.3", "mocha": "*"},
+  "devDependencies": {"backbone": "0.5.3", "underscore": "1.3.3", "mocha": "*"},
   "main": "./backbone.subset"
 }
