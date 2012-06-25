@@ -78,6 +78,12 @@ to be 'none' (this is the default).
 * To limit which model keys trigger a live update, set `liveupdate\_keys`
 to be an array of attributes: `liveupdate\_keys = ['archived']`.
 
+### Exclusive subsets
+
+There are subsets that are exclusive and can operate more efficiently since they don't have to
+bubble to their siblings. To mark a subset as exclusive just implement the `exclusiveSubset`
+function to return `true` or `false`.
+
 ## Tests
 
 You must have node installed in order to run the tests.

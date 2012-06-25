@@ -66,6 +66,15 @@
   };
 
   /**
+   * Default exclusiveSubset implementation
+   *
+   * @return {Boolean}
+   */
+  Subset.exclusiveSubset = function () {
+    return false;
+  };
+
+  /**
    * Resets the parent collection
    *
    * @param {Object} models
@@ -96,7 +105,11 @@
     xored_ids = xor(ids, _.pluck(models, 'id'));
 
     parent.reset(parent_models, _.extend({silent: true}, options));
-    parent.trigger('reset', this, _.extend({model_ids: xored_ids}, options));
+    if (this.exclusiveSubset()) {
+      parent.trigger('reset', this, _.extend({model_ids: xored_ids, exclusive_collection: this}, options));
+    } else {
+      parent.trigger('reset', this, _.extend({model_ids: xored_ids}, options));
+    }
 
     return this;
   };
@@ -157,6 +170,10 @@
    * @return {Object} model
    */
   Subset.add = function (model, options) {
+    if (this.exclusiveSubset()) {
+      options = _.extend(options, {exclusive_collection: this});
+    }
+
     return _.result(this, 'parent').add(model, options);
   };
 
@@ -181,6 +198,10 @@
    * @return {Object} model
    */
   Subset.remove = function (model, options) {
+    if (this.exclusiveSubset()) {
+      options = _.extend(options, {exclusive_collection: this});
+    }
+
     return _.result(this, 'parent').remove(model, options);
   };
 
@@ -229,6 +250,10 @@
   Subset._proxyAdd = function (model, collection, options) {
     options = options || {};
 
+    if (options.exclusive_collection && options.exclusive_collection !== this) {
+      return;
+    }
+
     if (collection !== this && this.sieve(model) && !options.noproxy) {
       this._addToSubset(model, options);
     }
@@ -243,6 +268,10 @@
    */
   Subset._proxyRemove = function (model, collection, options) {
     options = options || {};
+
+    if (options.exclusive_collection && options.exclusive_collection !== this) {
+      return;
+    }
 
     if (collection !== this && this.sieve(model) && !options.noproxy) {
       this._removeFromSubset(model, options);
@@ -276,6 +305,10 @@
 
     var sieved_models
       , self = this;
+
+    if (options.exclusive_collection && options.exclusive_collection !== this) {
+      return;
+    }
 
     function getSievedModels() {
       return _.filter(options.model_ids, function (id) {

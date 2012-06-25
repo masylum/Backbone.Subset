@@ -33,6 +33,9 @@ Collections.ArchivedTasks = Backbone.Subset.extend({
   parent: function () {
     return tasks;
   }
+, exclusiveSubset: function () {
+    return true;
+  }
 , name: 'ArchivedTasks'
 , sieve: function (task) {
     return task.isArchived();
@@ -43,6 +46,9 @@ Collections.UrgentTasks = Backbone.Subset.extend({
   parent: function () {
     return tasks;
   }
+, exclusiveSubset: function () {
+    return true;
+  }
 , name: 'UrgentTasks'
 , sieve: function (task) {
     return task.isUrgent();
@@ -52,6 +58,9 @@ Collections.UrgentTasks = Backbone.Subset.extend({
 Collections.ProjectTasks = Backbone.Subset.extend({
   beforeInitialize: function (models, options) {
     this.project = options.project;
+  }
+, exclusiveSubset: function () {
+    return true;
   }
 , name: 'ProjectTasks'
 , parent: function () {
