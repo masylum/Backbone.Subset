@@ -115,7 +115,7 @@
 
     // re-evaluate each model's eligibility
     changed = _.result(this, 'parent').reduce(function (changed, model) {
-      return changed || self._updateModelMembership(model, {silent: true});
+      return self._updateModelMembership(model, {silent: true}) || changed;
     }, false);
 
     // only trigger reset event if the subset actually changed
