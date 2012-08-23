@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/masylum/Backbone.Subset.png)](http://travis-ci.org/masylum/Backbone.Subset)
 # Backbone.Subset
 
 A subset collection that contains pointers to models from a parent collection.
