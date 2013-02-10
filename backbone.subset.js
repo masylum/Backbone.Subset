@@ -55,6 +55,8 @@
       this.beforeInitialize.apply(this, arguments);
     }
 
+    this.models = [];
+
     if (!options.no_reset) {
       this._reset();
       this.reset(models || parent.models, {silent: true});
@@ -330,8 +332,7 @@
    * @return {Boolean} changed
    */
   Subset._updateModelMembership = function (model, options) {
-    var hasId = !model.id
-      , alreadyInSubset = this._byCid[model.cid] || (hasId && this._byId[model.id]);
+    var alreadyInSubset = !_.isUndefined(this.get(model));
 
     if (this.sieve(model)) {
       if (!alreadyInSubset) {
