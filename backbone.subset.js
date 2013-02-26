@@ -74,7 +74,7 @@
    */
   Subset._asExclusive = function(options) {
     var options = options || {};
-    options.exclusive_collection = true;
+    options.exclusive_collection = this;
     return options
   };
 
