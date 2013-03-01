@@ -65,13 +65,26 @@
     this.initialize.apply(this, arguments);
   };
 
+  Subset.exclusiveSubset = false
+
   /**
-   * Default exclusiveSubset implementation
+   * Updates options to work with exclusive subsets
    *
-   * @return {Boolean}
+   * @return {Object}
    */
-  Subset.exclusiveSubset = function () {
-    return false;
+  Subset._asExclusive = function(options) {
+    var options = options || {};
+    options.exclusive_collection = this;
+    return options
+  };
+
+  /**
+   * Inspector to check if this is an exclusive subset
+   *
+   * @return {Object}
+   */
+  Subset._isExclusive = function() {
+   return  _.result(this, 'exclusiveSubset')
   };
 
   /**
@@ -105,7 +118,7 @@
     xored_ids = xor(ids, _.pluck(models, 'id'));
 
     parent.reset(parent_models, _.extend({silent: true}, options));
-    if (this.exclusiveSubset()) {
+    if (this._isExclusive()) {
       parent.trigger('reset', this, _.extend({model_ids: xored_ids, exclusive_collection: this}, options));
     } else {
       parent.trigger('reset', this, _.extend({model_ids: xored_ids}, options));
@@ -170,8 +183,8 @@
    * @return {Object} model
    */
   Subset.add = function (model, options) {
-    if (this.exclusiveSubset()) {
-      options = _.extend(options, {exclusive_collection: this});
+    if (this._isExclusive()) {
+      options = this._asExclusive(options);
     }
 
     return _.result(this, 'parent').add(model, options);
@@ -198,8 +211,8 @@
    * @return {Object} model
    */
   Subset.remove = function (model, options) {
-    if (this.exclusiveSubset()) {
-      options = _.extend(options, {exclusive_collection: this});
+    if (this._isExclusive()) {
+      options = this._asExclusive(options);
     }
 
     return _.result(this, 'parent').remove(model, options);
