@@ -84,8 +84,7 @@
    * @return {Object}
    */
   Subset._isExclusive = function() {
-    var check = this.exclusiveSubset;
-    return _.isFunction(check) ? check() : check
+   return  _.result(this, 'exclusiveSubset')
   };
 
   /**
