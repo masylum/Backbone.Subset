@@ -312,7 +312,7 @@
 
     function getSievedModels() {
       return _.filter(options.model_ids, function (id) {
-        var model = self.parent().get(id) || self.get(id);
+        var model = _.result(self, 'parent').get(id) || self.get(id);
         return model && self.sieve(model);
       });
     }
