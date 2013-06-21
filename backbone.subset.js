@@ -331,7 +331,7 @@
    */
   Subset._updateModelMembership = function (model, options) {
     var hasId = !model.id
-      , alreadyInSubset = this._byCid[model.cid] || (hasId && this._byId[model.id]);
+      , alreadyInSubset = this._byId[model.cid] || (hasId && this._byId[model.id]);
 
     if (this.sieve(model)) {
       if (!alreadyInSubset) {
