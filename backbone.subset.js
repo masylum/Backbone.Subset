@@ -55,7 +55,7 @@
       this.beforeInitialize.apply(this, arguments);
     }
 
-    if (!options.no_reset) {
+    if (options.reset_parent) {
       this._reset();
       this.reset(models || parent.models, {silent: true});
     } else {
@@ -331,7 +331,7 @@
    */
   Subset._updateModelMembership = function (model, options) {
     var hasId = !model.id
-      , alreadyInSubset = this._byCid[model.cid] || (hasId && this._byId[model.id]);
+      , alreadyInSubset = this._byId[model.cid] || (hasId && this._byId[model.id]);
 
     if (this.sieve(model)) {
       if (!alreadyInSubset) {

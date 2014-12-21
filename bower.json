@@ -1,0 +1,7 @@
+{
+  "name": "Backbone.Subset",
+  "version": "0.1.1",
+  "dependencies": {"backbone": "~1.1.0", "underscore": "~1.5.2"},
+  "main": "./backbone.subset",
+  "ignore": ["Makefile", "test", "Readme.md"]
+}
