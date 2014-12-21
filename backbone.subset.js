@@ -55,7 +55,7 @@
       this.beforeInitialize.apply(this, arguments);
     }
 
-    if (!options.no_reset) {
+    if (options.reset_parent) {
       this._reset();
       this.reset(models || parent.models, {silent: true});
     } else {
